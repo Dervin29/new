@@ -204,6 +204,7 @@ function App() {
                   ))}
 
                   <button type="submit">Book Ticket</button>
+                  <button onClick={() => setSelectedTrain(null)}>Back to Train Details</button>
                 </form>
               </div>
             ) : (
