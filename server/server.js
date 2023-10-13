@@ -192,53 +192,25 @@ app.post("/bookings", async (req, res) => {
           return;
         }
 
-        for (const seatNumber of bookedSeats) {
-          // Insert booking details into the database, including seat count and total cost
-          db.query(
-            "INSERT INTO bookings (train_id, source, destination, booking_date, seat_count, total_sum, booking_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [
-              trainId,
-              source,
-              destination,
-              booking_date,
-              seatCount[selectedClass],
-              totalCost,
-              pnrNumber,
-            ],
-            (err, result) => {
-              if (err) {
-                console.error("Error inserting booked seat:", err);
-                db.rollback((rollbackErr) => {
-                  if (rollbackErr) {
-                    console.error("Transaction rollback error:", rollbackErr);
-                  }
-                  res.status(500).send("Error inserting booked seat");
-                });
-              } else {
-                console.log(`Booked seat ${seatNumber} for train ${trainId}`);
-              }
-            }
-          );
-        }
-
         for (let i = 0; i < numPassengers; i++) {
           const passenger = passengers[i];
           const bookedSeat = bookedSeats[i];
           const seatType = bookedSeat[0]; // Get the seat type prefix
           const seatNumber = bookedSeat.substring(1); // Get the seat number without the prefix
 
-          // Insert passenger details into the database, including seat class
+          // Insert passenger details into the database, including seat class and train_id
           db.query(
-            "INSERT INTO passengers (booking_id, name, age, gender, address, seat_type, seat_number, seat_class) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO passengers (booking_id, train_id, name, age, gender, address, seat_type, seat_number, seat_class) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
               pnrNumber,
+              trainId, // Insert the train_id
               passenger.name,
               passenger.age,
               passenger.gender,
               passenger.address,
               seatType,
               seatNumber,
-              selectedClass, // Insert the selected class as seat_class
+              selectedClass,
             ],
             (err, result) => {
               if (err) {

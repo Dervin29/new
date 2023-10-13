@@ -1,7 +1,7 @@
 import React from 'react';
 import "../App.css";
 
-function ConfirmationModal({ show, onClose, onProceed, confirmationData }) {
+function ConfirmationModal({ show, onClose, onProceed, confirmationData, pnrNumber}) {
   const modalStyles = {
     display: show ? 'block' : 'none',
   };
@@ -14,6 +14,7 @@ function ConfirmationModal({ show, onClose, onProceed, confirmationData }) {
           {/* Display confirmation details using the 'confirmationData' prop */}
           {confirmationData && (
             <div>
+              <p>PNR Number: {pnrNumber}</p>
               <p>Selected date: {confirmationData.selectedDate.toDateString()}</p>
               <p>Source: {confirmationData.source}</p>
               <p>Destination: {confirmationData.destination}</p>
@@ -36,7 +37,7 @@ function ConfirmationModal({ show, onClose, onProceed, confirmationData }) {
                   <th>Name</th>
                   <th>Age</th>
                   <th>Gender</th>
-                  <th>Address</th>
+                  <th class="address">Address</th>
                 </tr>
               </thead>
               <tbody>

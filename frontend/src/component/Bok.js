@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import ConfirmationModal from './ConfirmationModal';
-import PaymentPage from './PaymentPage'; 
+import React, { useState } from "react";
+import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import ConfirmationModal from "./ConfirmationModal";
+import PaymentPage from "./PaymentPage";
 import "../App.css";
 
 function App() {
-  const [source, setSource] = useState('');
-  const [destination, setDestination] = useState('');
+  const [source, setSource] = useState("");
+  const [destination, setDestination] = useState("");
   const [trains, setTrains] = useState([]);
   const [selectedTrain, setSelectedTrain] = useState(null);
   const [numPassengers, setNumPassengers] = useState(1);
@@ -16,21 +16,27 @@ function App() {
   const [passengers, setPassengers] = useState(
     Array.from({ length: numPassengers }, () => ({}))
   );
-  const [selectedClass, setSelectedClass] = useState('sleeper');
+  const [selectedClass, setSelectedClass] = useState("sleeper");
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [showPaymentPage, setShowPaymentPage] = useState(false); 
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
   const [confirmationData, setConfirmationData] = useState(null);
 
   const fetchTrains = async () => {
+    if (source === destination) {
+      // Display an alert message for an invalid entry
+      alert("Source and destination cannot be the same.");
+      return;
+    }
+
     try {
-      const baseURL = 'http://localhost:3001';
+      const baseURL = "http://localhost:3001";
       const response = await axios.get(
         `${baseURL}/trains?source=${source}&destination=${destination}`
       );
       setTrains(response.data);
     } catch (error) {
-      console.error('Error fetching trains:', error);
+      console.error("Error fetching trains:", error);
     }
   };
 
@@ -51,30 +57,36 @@ function App() {
 
   const handleBooking = (e) => {
     e.preventDefault();
-    
-    const dataToConfirm = {
-      selectedDate,
-      source,
-      destination,
-      selectedTrain,
-      numPassengers,
-      selectedClass,
-      passengers,
-    };
 
-    setConfirmationData(dataToConfirm);
-    setShowConfirmationModal(true);
+    if (source === destination) {
+      alert(
+        "Source and destination cannot be the same. Please enter valid entries."
+      );
+    } else {
+      const dataToConfirm = {
+        selectedDate,
+        source,
+        destination,
+        selectedTrain,
+        numPassengers,
+        selectedClass,
+        passengers,
+      };
+
+      setConfirmationData(dataToConfirm);
+      setShowConfirmationModal(true);
+    }
   };
 
   const resetBookingForm = () => {
-    setSource('');
-    setDestination('');
+    setSource("");
+    setDestination("");
     setTrains([]);
     setSelectedTrain(null);
     setNumPassengers(1);
     setSelectedDate(new Date());
     setPassengers(Array.from({ length: numPassengers }, () => ({})));
-    setSelectedClass('sleeper');
+    setSelectedClass("sleeper");
   };
 
   return (
@@ -88,14 +100,14 @@ function App() {
             setShowPaymentPage(false);
           }}
           onPayment={() => {
-            alert('Payment successful');
+            alert("Payment successful");
           }}
           confirmationData={confirmationData}
         />
       ) : (
         <>
           <div className="train_details">
-            <h1 className='heading'>Train Details</h1>
+            <h1 className="heading">Train Details</h1>
             <div className="source_destination">
               <input
                 type="text"
@@ -117,6 +129,7 @@ function App() {
                 dateFormat="MM/dd/yyyy"
                 isClearable
                 placeholderText="Select a date"
+                minDate={new Date()} 
               />
               <button onClick={fetchTrains}>Search</button>
             </div>
@@ -130,8 +143,12 @@ function App() {
                 <p>Destination: {destination}</p>
                 <p>Train ID: {selectedTrain.id}</p>
                 <p>Name: {selectedTrain.name}</p>
-                <p>Departure @ {source}: {selectedTrain.departure_time}</p>
-                <p>Arrival @ {destination}: {selectedTrain.arrival_time}</p>
+                <p>
+                  Departure @ {source}: {selectedTrain.departure_time}
+                </p>
+                <p>
+                  Arrival @ {destination}: {selectedTrain.arrival_time}
+                </p>
                 <p>Seats (Sleeper): {selectedTrain.seats_sleeper}</p>
                 <p>Seats (AC): {selectedTrain.seats_ac}</p>
                 <p>Seats (General): {selectedTrain.seats_general}</p>
@@ -163,9 +180,9 @@ function App() {
                       <input
                         type="text"
                         placeholder={`Name of Passenger ${index + 1}`}
-                        value={passengers[index]?.name || ''}
+                        value={passengers[index]?.name || ""}
                         onChange={(e) =>
-                          handlePassengerChange(index, 'name', e.target.value)
+                          handlePassengerChange(index, "name", e.target.value)
                         }
                         required
                         maxLength={20}
@@ -173,17 +190,17 @@ function App() {
                       <input
                         type="number"
                         placeholder={`Age of Passenger ${index + 1}`}
-                        value={passengers[index]?.age || ''}
+                        value={passengers[index]?.age || ""}
                         onChange={(e) =>
-                          handlePassengerChange(index, 'age', e.target.value)
+                          handlePassengerChange(index, "age", e.target.value)
                         }
                         required
-                        min={0}
+                        min={5}
                       />
                       <select
-                        value={passengers[index]?.gender || ''}
+                        value={passengers[index]?.gender || ""}
                         onChange={(e) =>
-                          handlePassengerChange(index, 'gender', e.target.value)
+                          handlePassengerChange(index, "gender", e.target.value)
                         }
                       >
                         <option value="">Select Gender</option>
@@ -194,9 +211,13 @@ function App() {
                       <input
                         type="text"
                         placeholder={`Address of Passenger ${index + 1}`}
-                        value={passengers[index]?.address || ''}
+                        value={passengers[index]?.address || ""}
                         onChange={(e) =>
-                          handlePassengerChange(index, 'address', e.target.value)
+                          handlePassengerChange(
+                            index,
+                            "address",
+                            e.target.value
+                          )
                         }
                         required
                       />
@@ -204,23 +225,38 @@ function App() {
                   ))}
 
                   <button type="submit">Book Ticket</button>
-                  <button onClick={() => setSelectedTrain(null)}>Back to Train Details</button>
+                  <button onClick={() => setSelectedTrain(null)}>
+                    Back to Train Details
+                  </button>
                 </form>
               </div>
             ) : (
               <div>
-                <h2 className='heading'>Train List</h2>
-                <ul>
-                  {trains.map((train) => (
-                    <li key={train.id}>
-                      Train ID: {train.id}, Name: {train.name}, Departure:{' '}
-                      {train.departure_time}
-                      <button onClick={() => setSelectedTrain(train)}>
-                        Select
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                <h2 className="heading">Train List</h2>
+                <table className="train-table">
+                  <thead>
+                    <tr>
+                      <th>Train ID</th>
+                      <th>Name</th>
+                      <th>Departure</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trains.map((train) => (
+                      <tr key={train.id}>
+                        <td>{train.id}</td>
+                        <td>{train.name}</td>
+                        <td>{train.departure_time}</td>
+                        <td>
+                          <button onClick={() => setSelectedTrain(train)}>
+                            Select
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
